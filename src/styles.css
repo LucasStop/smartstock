@@ -202,6 +202,25 @@ table tr:hover td { background: rgba(255,255,255,0.02); }
 .toast.warning { border-left-color: var(--warning); }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
+.view-toggle { display: inline-flex; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 3px; gap: 2px; }
+.view-toggle-btn { width: 32px; height: 30px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-xs); transition: var(--transition); }
+.view-toggle-btn:hover { color: var(--text-primary); }
+.view-toggle-btn.active { background: var(--accent-glow); color: var(--accent); }
+
+.stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.stock-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; transition: var(--transition); position: relative; }
+.stock-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); box-shadow: var(--shadow); }
+.stock-card.low { border-color: rgba(239,68,68,0.25); }
+.stock-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.stock-card-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--accent-glow); color: var(--accent); display: flex; align-items: center; justify-content: center; }
+.stock-card.low .stock-card-icon { background: var(--danger-bg); color: var(--danger); }
+.stock-card-name { font-size: 15px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; min-height: 40px; }
+.stock-card-bar { height: 6px; background: rgba(255,255,255,0.05); border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
+.stock-card-bar-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: var(--transition); }
+.stock-card-bar-fill.low { background: var(--danger); }
+.stock-card-qty { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+.stock-card-footer { display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
+
 @media (max-width: 900px) {
   .sidebar { width: 220px; }
   .main-content { margin-left: 220px; width: calc(100% - 220px); padding: 20px; }
