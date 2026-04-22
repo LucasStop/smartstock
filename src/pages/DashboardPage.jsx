@@ -317,11 +317,11 @@ export default function DashboardPage() {
                 const badge = m.quantity > 0 ? "badge-entry" : m.type === "SAIDA" ? "badge-exit" : "badge-adjust";
                 return (
                   <tr key={m.id}>
-                    <td style={{ color: "var(--text-muted)", fontSize: 13 }}>{formatDate(m.date)}</td>
-                    <td style={{ fontWeight: 500 }}>{prod?.name || "—"}</td>
-                    <td><span className={`badge ${badge}`}>{m.type}</span></td>
-                    <td className={`qty-cell ${m.quantity < 0 ? "low" : ""}`}>{m.quantity > 0 ? `+${m.quantity}` : m.quantity}</td>
-                    <td style={{ color: "var(--text-secondary)", fontSize: 13 }}>{m.reason}</td>
+                    <td data-label="Data" style={{ color: "var(--text-muted)", fontSize: 13 }}>{formatDate(m.date)}</td>
+                    <td data-label="Produto" style={{ fontWeight: 500 }}>{prod?.name || "—"}</td>
+                    <td data-label="Tipo"><span className={`badge ${badge}`}>{m.type}</span></td>
+                    <td data-label="Quantidade" className={`qty-cell ${m.quantity < 0 ? "low" : ""}`}>{m.quantity > 0 ? `+${m.quantity}` : m.quantity}</td>
+                    <td data-label="Motivo" style={{ color: "var(--text-secondary)", fontSize: 13 }}>{m.reason}</td>
                   </tr>
                 );
               })}

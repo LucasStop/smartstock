@@ -67,13 +67,13 @@ export default function MovementsPage() {
                 const prod = getProduct(m.productId);
                 return (
                   <tr key={m.id}>
-                    <td style={{ color: "var(--text-muted)", fontSize: 13 }}>{formatDate(m.date)}</td>
-                    <td style={{ fontWeight: 500 }}>{prod?.name || "—"}</td>
-                    <td><span className="sku-cell">{prod?.sku || "—"}</span></td>
-                    <td><span className={`badge ${badgeClass(m.type)}`}>{m.type}</span></td>
-                    <td className={`qty-cell ${m.quantity < 0 ? "low" : ""}`}>{m.quantity > 0 ? `+${m.quantity}` : m.quantity}</td>
-                    <td style={{ color: "var(--text-secondary)", fontSize: 13 }}>{m.reason}</td>
-                    <td style={{ color: "var(--text-secondary)" }}>{getUserName(m.userId)}</td>
+                    <td data-label="Data" style={{ color: "var(--text-muted)", fontSize: 13 }}>{formatDate(m.date)}</td>
+                    <td data-label="Produto" style={{ fontWeight: 500 }}>{prod?.name || "—"}</td>
+                    <td data-label="SKU"><span className="sku-cell">{prod?.sku || "—"}</span></td>
+                    <td data-label="Tipo"><span className={`badge ${badgeClass(m.type)}`}>{m.type}</span></td>
+                    <td data-label="Qtd" className={`qty-cell ${m.quantity < 0 ? "low" : ""}`}>{m.quantity > 0 ? `+${m.quantity}` : m.quantity}</td>
+                    <td data-label="Motivo" style={{ color: "var(--text-secondary)", fontSize: 13 }}>{m.reason}</td>
+                    <td data-label="Usuário" style={{ color: "var(--text-secondary)" }}>{getUserName(m.userId)}</td>
                   </tr>
                 );
               })}

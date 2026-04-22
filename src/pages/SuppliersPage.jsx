@@ -44,11 +44,11 @@ export default function SuppliersPage() {
                 <tr><td colSpan={5}><div className="empty-state"><Icons.Truck /><h3>Nenhum fornecedor</h3><p>Comece cadastrando um novo fornecedor.</p></div></td></tr>
               ) : suppliers.map((s) => (
                 <tr key={s.id}>
-                  <td style={{ fontWeight: 600 }}>{s.name}</td>
-                  <td><span className="sku-cell">{s.cnpj}</span></td>
-                  <td style={{ color: "var(--text-secondary)" }}>{s.email}</td>
-                  <td style={{ color: "var(--text-secondary)" }}>{s.phone}</td>
-                  <td><div className="table-actions">
+                  <td data-label="Nome" style={{ fontWeight: 600 }}>{s.name}</td>
+                  <td data-label="CNPJ"><span className="sku-cell">{s.cnpj}</span></td>
+                  <td data-label="Email" style={{ color: "var(--text-secondary)" }}>{s.email}</td>
+                  <td data-label="Telefone" style={{ color: "var(--text-secondary)" }}>{s.phone}</td>
+                  <td data-label="Ações"><div className="table-actions">
                     <button className="action-btn" title="Editar" onClick={() => openEdit(s)}><Icons.Edit /></button>
                     <button className="action-btn danger" title="Excluir" onClick={() => handleDelete(s)}><Icons.Trash /></button>
                   </div></td>

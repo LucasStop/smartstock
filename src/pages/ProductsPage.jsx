@@ -104,14 +104,14 @@ export default function ProductsPage() {
                 const low = p.quantity < p.minQuantity;
                 return (
                   <tr key={p.id}>
-                    <td><div style={{ display: "flex", alignItems: "center", gap: 8 }}>{p.name}{low && <span className="badge badge-low" style={{ fontSize: 10, padding: "2px 6px" }}>Baixo</span>}</div></td>
-                    <td><span className="sku-cell">{p.sku}</span></td>
-                    <td className="currency">{formatCurrency(p.price)}</td>
-                    <td style={{ color: "var(--text-secondary)" }}>{formatCurrency(p.cost)}</td>
-                    <td className={`qty-cell ${low ? "low" : ""}`}>{p.quantity}</td>
-                    <td style={{ color: "var(--text-muted)" }}>{p.minQuantity}</td>
-                    <td><span className="badge badge-user">{getCategoryName(p.categoryId)}</span></td>
-                    <td><div className="table-actions">
+                    <td data-label="Produto"><div style={{ display: "flex", alignItems: "center", gap: 8 }}>{p.name}{low && <span className="badge badge-low" style={{ fontSize: 10, padding: "2px 6px" }}>Baixo</span>}</div></td>
+                    <td data-label="SKU"><span className="sku-cell">{p.sku}</span></td>
+                    <td data-label="Preço" className="currency">{formatCurrency(p.price)}</td>
+                    <td data-label="Custo" style={{ color: "var(--text-secondary)" }}>{formatCurrency(p.cost)}</td>
+                    <td data-label="Qtd" className={`qty-cell ${low ? "low" : ""}`}>{p.quantity}</td>
+                    <td data-label="Qtd Mín" style={{ color: "var(--text-muted)" }}>{p.minQuantity}</td>
+                    <td data-label="Categoria"><span className="badge badge-user">{getCategoryName(p.categoryId)}</span></td>
+                    <td data-label="Ações"><div className="table-actions">
                       <button className="action-btn" title="Editar" onClick={() => openEdit(p)}><Icons.Edit /></button>
                       <button className="action-btn danger" title="Excluir" onClick={() => handleDelete(p)}><Icons.Trash /></button>
                     </div></td>

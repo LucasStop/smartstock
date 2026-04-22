@@ -53,7 +53,7 @@ export default function UsersPage() {
 
   const renderRow = (u) => (
     <tr key={u.id}>
-      <td>
+      <td data-label="Nome">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: u.role === "ADMIN" ? "linear-gradient(135deg, var(--accent), var(--purple))" : "var(--bg-card-hover)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: u.role === "ADMIN" ? "white" : "var(--text-secondary)" }}>
             {u.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
@@ -62,15 +62,15 @@ export default function UsersPage() {
           {u.id === currentUser.id && <span className="badge badge-user" style={{ fontSize: 10 }}>Você</span>}
         </div>
       </td>
-      <td style={{ color: "var(--text-secondary)" }}>{u.email}</td>
-      <td>
+      <td data-label="Email" style={{ color: "var(--text-secondary)" }}>{u.email}</td>
+      <td data-label="Status">
         <button onClick={() => toggleActive(u)} style={{ border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }} title="Clique para alternar">
           <span className={`status-dot ${u.active ? "active" : "inactive"}`} />
           <span style={{ fontSize: 13, color: u.active ? "var(--success)" : "var(--text-muted)" }}>{u.active ? "Ativo" : "Inativo"}</span>
         </button>
       </td>
-      <td style={{ color: "var(--text-muted)", fontSize: 13 }}>{formatDate(u.createdAt)}</td>
-      <td><div className="table-actions">
+      <td data-label="Cadastrado em" style={{ color: "var(--text-muted)", fontSize: 13 }}>{formatDate(u.createdAt)}</td>
+      <td data-label="Ações"><div className="table-actions">
         <button className="action-btn" title="Editar" onClick={() => openEdit(u)}><Icons.Edit /></button>
         <button className="action-btn danger" title="Excluir" onClick={() => handleDelete(u)}><Icons.Trash /></button>
       </div></td>

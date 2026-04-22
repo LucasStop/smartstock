@@ -64,11 +64,11 @@ export default function CategoriesPage() {
                 <tr><td colSpan={5}><div className="empty-state"><Icons.Tag /><h3>Nenhuma categoria</h3><p>Comece cadastrando uma nova categoria.</p></div></td></tr>
               ) : filteredCategories.map((c) => (
                 <tr key={c.id}>
-                  <td style={{ fontWeight: 600 }}>{c.name}</td>
-                  <td style={{ color: "var(--text-secondary)" }}>{c.description || "—"}</td>
-                  <td><span className="badge badge-user">{c.count} {c.count === 1 ? "item" : "itens"}</span></td>
-                  <td style={{ color: "var(--text-muted)", fontSize: 13 }}>{formatDate(c.createdAt)}</td>
-                  <td><div className="table-actions">
+                  <td data-label="Nome" style={{ fontWeight: 600 }}>{c.name}</td>
+                  <td data-label="Descrição" style={{ color: "var(--text-secondary)" }}>{c.description || "—"}</td>
+                  <td data-label="Produtos"><span className="badge badge-user">{c.count} {c.count === 1 ? "item" : "itens"}</span></td>
+                  <td data-label="Criado em" style={{ color: "var(--text-muted)", fontSize: 13 }}>{formatDate(c.createdAt)}</td>
+                  <td data-label="Ações"><div className="table-actions">
                     <button className="action-btn" title="Editar" onClick={() => openEdit(c)}><Icons.Edit /></button>
                     <button className="action-btn danger" title="Excluir" onClick={() => handleDelete(c)}><Icons.Trash /></button>
                   </div></td>

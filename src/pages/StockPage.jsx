@@ -97,14 +97,14 @@ export default function StockPage() {
                   const ok = p.quantity >= p.minQuantity;
                   return (
                     <tr key={p.id}>
-                      <td style={{ fontWeight: 500 }}>{p.name}</td>
-                      <td><span className="sku-cell">{p.sku}</span></td>
-                      <td><span className="badge badge-user">{getCategoryName(p.categoryId)}</span></td>
-                      <td className={`qty-cell ${!ok ? "low" : ""}`}>{p.quantity}</td>
-                      <td style={{ color: "var(--text-muted)" }}>{p.minQuantity}</td>
-                      <td className="currency">{formatCurrency(p.price)}</td>
-                      <td className="currency">{formatCurrency(p.quantity * p.price)}</td>
-                      <td><span className={`badge ${ok ? "badge-ok" : "badge-low"}`}>{ok ? "OK" : "BAIXO"}</span></td>
+                      <td data-label="Produto" style={{ fontWeight: 500 }}>{p.name}</td>
+                      <td data-label="SKU"><span className="sku-cell">{p.sku}</span></td>
+                      <td data-label="Categoria"><span className="badge badge-user">{getCategoryName(p.categoryId)}</span></td>
+                      <td data-label="Qtd" className={`qty-cell ${!ok ? "low" : ""}`}>{p.quantity}</td>
+                      <td data-label="Qtd Mín" style={{ color: "var(--text-muted)" }}>{p.minQuantity}</td>
+                      <td data-label="Preço Unit." className="currency">{formatCurrency(p.price)}</td>
+                      <td data-label="Valor Total" className="currency">{formatCurrency(p.quantity * p.price)}</td>
+                      <td data-label="Situação"><span className={`badge ${ok ? "badge-ok" : "badge-low"}`}>{ok ? "OK" : "BAIXO"}</span></td>
                     </tr>
                   );
                 })}
