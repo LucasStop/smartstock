@@ -21,7 +21,7 @@ export const seedSuppliers = [
 ];
 
 export const seedProducts = [
-  { id: "p-nb-dell", name: "Notebook Dell Inspiron 15", sku: "NB-DELL-001", price: 3499.9, cost: 2800, quantity: 25, minQuantity: 10, categoryId: "c-ele", supplierId: "s-silva", createdAt: "2025-02-01T12:00:00.000Z" },
+  { id: "p-nb-dell", name: "Notebook Dell Inspiron 15", sku: "NB-DELL-001", price: 3499.9, cost: 2800, quantity: 25, minQuantity: 10, categoryId: "c-ele", supplierId: "s-silva", description: "Notebook de alta performance com processador Intel i7 e 16GB de RAM.", createdAt: "2025-02-01T12:00:00.000Z" },
   { id: "p-ms-log", name: "Mouse Logitech MX Master 3", sku: "MS-LOG-042", price: 499.9, cost: 350, quantity: 58, minQuantity: 20, categoryId: "c-per", supplierId: "s-oli", createdAt: "2025-02-02T12:00:00.000Z" },
   { id: "p-tc-red", name: "Teclado Mecânico Redragon", sku: "TC-RED-015", price: 289.9, cost: 180, quantity: 3, minQuantity: 10, categoryId: "c-per", supplierId: "s-oli", createdAt: "2025-02-03T12:00:00.000Z" },
   { id: "p-mn-lg", name: "Monitor LG UltraWide 29\"", sku: "MN-LG-029", price: 1899.9, cost: 1400, quantity: 12, minQuantity: 5, categoryId: "c-ele", supplierId: "s-silva", createdAt: "2025-02-04T12:00:00.000Z" },

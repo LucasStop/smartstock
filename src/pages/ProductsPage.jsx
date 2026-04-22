@@ -4,7 +4,7 @@ import Modal from "../components/Modal.jsx";
 import { useData } from "../context/DataContext.jsx";
 import { formatCurrency } from "../utils/storage.js";
 
-const emptyForm = { name: "", sku: "", price: "", cost: "", quantity: "", minQuantity: "", categoryId: "", supplierId: "" };
+const emptyForm = { name: "", sku: "", price: "", cost: "", quantity: "", minQuantity: "", categoryId: "", supplierId: "", description: "" };
 
 export default function ProductsPage() {
   const { products, categories, suppliers, createProduct, updateProduct, removeProduct, getCategoryName } = useData();
@@ -39,7 +39,7 @@ export default function ProductsPage() {
   }
   function openEdit(product) {
     setEditing(product);
-    setForm({ name: product.name, sku: product.sku, price: product.price, cost: product.cost, quantity: product.quantity, minQuantity: product.minQuantity, categoryId: product.categoryId, supplierId: product.supplierId });
+    setForm({ name: product.name, sku: product.sku, price: product.price, cost: product.cost, quantity: product.quantity, minQuantity: product.minQuantity, categoryId: product.categoryId, supplierId: product.supplierId, description: product.description || "" });
     setFormError(""); setModalOpen(true);
   }
   function handleDelete(p) { if (confirm(`Excluir "${p.name}"? Esta ação também remove suas movimentações.`)) removeProduct(p.id); }
@@ -54,6 +54,7 @@ export default function ProductsPage() {
       quantity: Math.max(0, parseInt(form.quantity, 10) || 0),
       minQuantity: Math.max(0, parseInt(form.minQuantity, 10) || 0),
       categoryId: form.categoryId, supplierId: form.supplierId,
+      description: form.description.trim(),
     };
     const result = editing ? updateProduct(editing.id, data) : createProduct(data);
     if (!result.ok) { setFormError(result.error); return; }
@@ -162,6 +163,10 @@ export default function ProductsPage() {
                 {suppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
+          </div>
+          <div className="form-field" style={{ marginTop: 4 }}>
+            <label>Descrição</label>
+            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes do produto, observações, especificações..." />
           </div>
           {formError && <div className="error-text">{formError}</div>}
         </form>
