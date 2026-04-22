@@ -5,6 +5,78 @@ import { formatCurrency, formatDate } from "../utils/storage.js";
 
 function toISODate(d) { return d.toISOString().slice(0, 10); }
 
+const PIE_COLORS = ["#3B82F6", "#10B981", "#8B5CF6", "#F59E0B", "#14B8A6", "#EF4444"];
+
+function polarToCartesian(cx, cy, r, angleDeg) {
+  const a = ((angleDeg - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+}
+
+function arcPath(cx, cy, r, startAngle, endAngle) {
+  const start = polarToCartesian(cx, cy, r, endAngle);
+  const end = polarToCartesian(cx, cy, r, startAngle);
+  const large = endAngle - startAngle <= 180 ? 0 : 1;
+  return ["M", cx, cy, "L", start.x, start.y, "A", r, r, 0, large, 0, end.x, end.y, "Z"].join(" ");
+}
+
+function SupplierPie() {
+  const { products, suppliers } = useData();
+  const data = useMemo(() => {
+    const totals = new Map();
+    products.forEach((p) => {
+      totals.set(p.supplierId, (totals.get(p.supplierId) || 0) + p.quantity);
+    });
+    const entries = [...totals.entries()]
+      .map(([id, total]) => ({ supplier: suppliers.find((s) => s.id === id), total }))
+      .filter((e) => e.supplier && e.total > 0)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+    const sum = entries.reduce((acc, e) => acc + e.total, 0);
+    return { entries, sum };
+  }, [products, suppliers]);
+
+  if (data.entries.length === 0) {
+    return <div className="empty-state" style={{ padding: "40px 20px" }}><Icons.Truck /><h3>Sem fornecedores</h3><p>Cadastre produtos vinculados a fornecedores.</p></div>;
+  }
+
+  let cursor = 0;
+  const slices = data.entries.map((e, i) => {
+    const angle = (e.total / data.sum) * 360;
+    const path = arcPath(100, 100, 90, cursor, cursor + angle);
+    const slice = { path, color: PIE_COLORS[i % PIE_COLORS.length], entry: e };
+    cursor += angle;
+    return slice;
+  });
+
+  return (
+    <div className="pie-wrap">
+      <svg className="pie-svg" viewBox="0 0 200 200" width="200" height="200">
+        {slices.map((s, i) => (
+          <path key={i} d={s.path} fill={s.color} stroke="var(--bg-card)" strokeWidth="2">
+            <title>{s.entry.supplier.name}: {s.entry.total}</title>
+          </path>
+        ))}
+        <circle cx="100" cy="100" r="42" fill="var(--bg-card)" />
+        <text x="100" y="96" textAnchor="middle" fill="var(--text-primary)" fontSize="22" fontWeight="800">{data.sum}</text>
+        <text x="100" y="114" textAnchor="middle" fill="var(--text-muted)" fontSize="10" letterSpacing="0.5" style={{ textTransform: "uppercase" }}>itens</text>
+      </svg>
+      <div className="pie-legend">
+        {slices.map((s, i) => {
+          const pct = ((s.entry.total / data.sum) * 100).toFixed(1);
+          return (
+            <div key={i} className="pie-legend-item">
+              <span className="pie-dot" style={{ background: s.color }} />
+              <span className="pie-legend-name">{s.entry.supplier.name}</span>
+              <span className="pie-legend-pct">{pct}%</span>
+              <span className="pie-legend-value">{s.entry.total}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { stats, movements, getProduct } = useData();
 
@@ -124,28 +196,37 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-      <div className="card" style={{ marginTop: 0, marginBottom: 16 }}>
-        <div className="card-header">
-          <h3><Icons.BarChart /> Itens mais Movimentados</h3>
-          <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600 }}>Últimos 30 dias</span>
-        </div>
-        <div className="top-bars">
-          {topMoved.entries.length === 0 ? (
-            <div className="empty-state" style={{ padding: "40px 20px" }}>
-              <Icons.BarChart />
-              <h3>Sem movimentações</h3>
-              <p>Ainda não há registros no período.</p>
-            </div>
-          ) : topMoved.entries.map((e, i) => (
-            <div key={e.product.id} className="top-bar-row">
-              <span className="top-bar-rank">#{i + 1}</span>
-              <span className="top-bar-name">{e.product.name}</span>
-              <div className="top-bar-track">
-                <div className="top-bar-fill" style={{ width: `${(e.total / topMoved.max) * 100}%` }} />
+      <div className="two-col" style={{ marginTop: 0 }}>
+        <div className="card">
+          <div className="card-header">
+            <h3><Icons.BarChart /> Itens mais Movimentados</h3>
+            <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600 }}>Últimos 30 dias</span>
+          </div>
+          <div className="top-bars">
+            {topMoved.entries.length === 0 ? (
+              <div className="empty-state" style={{ padding: "40px 20px" }}>
+                <Icons.BarChart />
+                <h3>Sem movimentações</h3>
+                <p>Ainda não há registros no período.</p>
               </div>
-              <span className="top-bar-value">{e.total}</span>
-            </div>
-          ))}
+            ) : topMoved.entries.map((e, i) => (
+              <div key={e.product.id} className="top-bar-row">
+                <span className="top-bar-rank">#{i + 1}</span>
+                <span className="top-bar-name">{e.product.name}</span>
+                <div className="top-bar-track">
+                  <div className="top-bar-fill" style={{ width: `${(e.total / topMoved.max) * 100}%` }} />
+                </div>
+                <span className="top-bar-value">{e.total}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-header">
+            <h3><Icons.Truck /> Melhores Fornecedores</h3>
+            <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600 }}>Por volume em estoque</span>
+          </div>
+          <SupplierPie />
         </div>
       </div>
 
