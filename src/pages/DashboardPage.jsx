@@ -6,6 +6,11 @@ import { formatCurrency, formatDate } from "../utils/storage.js";
 export default function DashboardPage() {
   const { stats, movements, getProduct } = useData();
 
+  const criticalItem = useMemo(() => {
+    if (!stats.lowStockItems.length) return null;
+    return [...stats.lowStockItems].sort((a, b) => a.quantity - b.quantity)[0];
+  }, [stats.lowStockItems]);
+
   const chartData = useMemo(() => {
     const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
     const buckets = Array.from({ length: 7 }, () => ({ entry: 0, exit: 0 }));
@@ -37,6 +42,15 @@ export default function DashboardPage() {
         <div className="stat-card"><div className="stat-icon red"><Icons.AlertTriangle /></div><div className="stat-info"><h3>{stats.lowStockCount}</h3><p>Estoque Baixo</p></div></div>
         <div className="stat-card"><div className="stat-icon blue"><Icons.Repeat /></div><div className="stat-info"><h3>{stats.monthMovements}</h3><p>Movimentações do Mês</p></div></div>
       </div>
+      {criticalItem && (
+        <div className="stock-alert-banner">
+          <div className="stock-alert-banner-icon"><Icons.AlertTriangle /></div>
+          <div className="stock-alert-banner-body">
+            <h3>Estoque de: {criticalItem.name} — BAIXO</h3>
+            <p>Quantidade atual: <strong>{criticalItem.quantity}</strong> &nbsp;|&nbsp; Mínimo: <strong>{criticalItem.minQuantity}</strong></p>
+          </div>
+        </div>
+      )}
       <div className="two-col">
         <div className="card">
           <div className="card-header"><h3><Icons.BarChart /> Movimentações — Últimos 7 dias</h3></div>
