@@ -42,6 +42,23 @@ export default function DashboardPage() {
 
   const maxVal = Math.max(70, ...chartData.flatMap((d) => [d.entry, d.exit]));
 
+  const topMoved = useMemo(() => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const totals = new Map();
+    movements.forEach((m) => {
+      if (new Date(m.date) < thirtyDaysAgo) return;
+      totals.set(m.productId, (totals.get(m.productId) || 0) + Math.abs(m.quantity));
+    });
+    const entries = [...totals.entries()]
+      .map(([productId, total]) => ({ product: getProduct(productId), total }))
+      .filter((e) => e.product)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+    const max = entries[0]?.total || 1;
+    return { entries, max };
+  }, [movements, getProduct]);
+
   return (
     <div className="main-content">
       <div className="page-header">
@@ -107,6 +124,31 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      <div className="card" style={{ marginTop: 0, marginBottom: 16 }}>
+        <div className="card-header">
+          <h3><Icons.BarChart /> Itens mais Movimentados</h3>
+          <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600 }}>Últimos 30 dias</span>
+        </div>
+        <div className="top-bars">
+          {topMoved.entries.length === 0 ? (
+            <div className="empty-state" style={{ padding: "40px 20px" }}>
+              <Icons.BarChart />
+              <h3>Sem movimentações</h3>
+              <p>Ainda não há registros no período.</p>
+            </div>
+          ) : topMoved.entries.map((e, i) => (
+            <div key={e.product.id} className="top-bar-row">
+              <span className="top-bar-rank">#{i + 1}</span>
+              <span className="top-bar-name">{e.product.name}</span>
+              <div className="top-bar-track">
+                <div className="top-bar-fill" style={{ width: `${(e.total / topMoved.max) * 100}%` }} />
+              </div>
+              <span className="top-bar-value">{e.total}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="card" style={{ marginTop: 16 }}>
         <div className="card-header"><h3><Icons.Repeat /> Últimas Movimentações</h3></div>
         <div className="table-wrapper">
