@@ -1,10 +1,17 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Icons } from "../utils/icons.jsx";
 import { useData } from "../context/DataContext.jsx";
 import { formatCurrency, formatDate } from "../utils/storage.js";
 
+function toISODate(d) { return d.toISOString().slice(0, 10); }
+
 export default function DashboardPage() {
   const { stats, movements, getProduct } = useData();
+
+  const today = new Date();
+  const sevenDaysAgo = new Date(today); sevenDaysAgo.setDate(today.getDate() - 6);
+  const [dateFrom, setDateFrom] = useState(toISODate(sevenDaysAgo));
+  const [dateTo, setDateTo] = useState(toISODate(today));
 
   const criticalItem = useMemo(() => {
     if (!stats.lowStockItems.length) return null;
@@ -12,20 +19,26 @@ export default function DashboardPage() {
   }, [stats.lowStockItems]);
 
   const chartData = useMemo(() => {
-    const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-    const buckets = Array.from({ length: 7 }, () => ({ entry: 0, exit: 0 }));
-    const now = new Date();
+    const from = new Date(dateFrom + "T00:00:00");
+    const to = new Date(dateTo + "T23:59:59");
+    if (from > to) return [];
+    const spanDays = Math.min(30, Math.floor((to - from) / (1000 * 60 * 60 * 24)) + 1);
+    const buckets = Array.from({ length: spanDays }, (_, i) => {
+      const d = new Date(from);
+      d.setDate(from.getDate() + i);
+      return { key: toISODate(d), label: d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }), entry: 0, exit: 0 };
+    });
+    const index = Object.fromEntries(buckets.map((b, i) => [b.key, i]));
     movements.forEach((m) => {
       const d = new Date(m.date);
-      const diff = Math.floor((now - d) / (1000 * 60 * 60 * 24));
-      if (diff < 7 && diff >= 0) {
-        const idx = d.getDay();
-        if (m.quantity > 0) buckets[idx].entry += m.quantity;
-        else buckets[idx].exit += Math.abs(m.quantity);
-      }
+      if (d < from || d > to) return;
+      const i = index[toISODate(d)];
+      if (i === undefined) return;
+      if (m.quantity > 0) buckets[i].entry += m.quantity;
+      else buckets[i].exit += Math.abs(m.quantity);
     });
-    return days.map((day, i) => ({ day, ...buckets[i] }));
-  }, [movements]);
+    return buckets;
+  }, [movements, dateFrom, dateTo]);
 
   const maxVal = Math.max(70, ...chartData.flatMap((d) => [d.entry, d.exit]));
 
@@ -53,15 +66,23 @@ export default function DashboardPage() {
       )}
       <div className="two-col">
         <div className="card">
-          <div className="card-header"><h3><Icons.BarChart /> Movimentações — Últimos 7 dias</h3></div>
+          <div className="card-header">
+            <h3><Icons.BarChart /> Movimentações — Período</h3>
+            <div className="date-range">
+              <label>De <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} /></label>
+              <label>Até <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} /></label>
+            </div>
+          </div>
           <div className="mini-chart">
-            {chartData.map((d) => (
-              <div key={d.day} className="bar-group">
+            {chartData.length === 0 ? (
+              <div style={{ width: "100%", textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>Intervalo inválido</div>
+            ) : chartData.map((d) => (
+              <div key={d.key} className="bar-group">
                 <div className="bars">
                   <div className="bar entry" style={{ height: `${(d.entry / maxVal) * 80}px` }} title={`Entradas: ${d.entry}`} />
                   <div className="bar exit" style={{ height: `${(d.exit / maxVal) * 80}px` }} title={`Saídas: ${d.exit}`} />
                 </div>
-                <span className="bar-label">{d.day}</span>
+                <span className="bar-label">{d.label}</span>
               </div>
             ))}
           </div>

@@ -228,6 +228,11 @@ table tr:hover td { background: rgba(255,255,255,0.02); }
 .stock-card-qty { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
 .stock-card-footer { display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
 
+.date-range { display: flex; gap: 8px; align-items: center; }
+.date-range label { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.date-range input[type="date"] { height: 32px; font-size: 12px; padding: 0 10px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-xs); color: var(--text-primary); font-family: var(--font); outline: none; transition: var(--transition); color-scheme: dark; }
+.date-range input[type="date"]:focus { border-color: var(--border-focus); }
+
 @media (max-width: 900px) {
   .sidebar { width: 220px; }
   .main-content { margin-left: 220px; width: calc(100% - 220px); padding: 20px; }
