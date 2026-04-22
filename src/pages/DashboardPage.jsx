@@ -5,6 +5,93 @@ import { formatCurrency, formatDate } from "../utils/storage.js";
 
 function toISODate(d) { return d.toISOString().slice(0, 10); }
 
+function niceMax(v) {
+  if (v <= 0) return 10;
+  const exp = Math.pow(10, Math.floor(Math.log10(v)));
+  const f = v / exp;
+  let nice;
+  if (f <= 1) nice = 1;
+  else if (f <= 2) nice = 2;
+  else if (f <= 5) nice = 5;
+  else nice = 10;
+  return nice * exp;
+}
+
+function BarChartSVG({ data }) {
+  const [hover, setHover] = useState(null);
+  if (!data.length) return <div style={{ padding: 40, textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>Intervalo inválido</div>;
+
+  const W = 720, H = 240;
+  const pad = { top: 16, right: 16, bottom: 36, left: 42 };
+  const innerW = W - pad.left - pad.right;
+  const innerH = H - pad.top - pad.bottom;
+
+  const max = niceMax(Math.max(1, ...data.flatMap((d) => [d.entry, d.exit])));
+  const ticks = 4;
+  const step = max / ticks;
+
+  const groupW = innerW / data.length;
+  const barW = Math.min(18, (groupW - 6) / 2);
+
+  return (
+    <div className="chart-svg-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "100%" }}>
+        <defs>
+          <linearGradient id="barEntry" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="var(--accent)" />
+            <stop offset="100%" stopColor="var(--accent-hover)" />
+          </linearGradient>
+          <linearGradient id="barExit" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.18)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0.06)" />
+          </linearGradient>
+        </defs>
+
+        {Array.from({ length: ticks + 1 }, (_, i) => {
+          const y = pad.top + innerH - (i * innerH) / ticks;
+          const val = Math.round(i * step);
+          return (
+            <g key={i}>
+              <line x1={pad.left} x2={W - pad.right} y1={y} y2={y} stroke="rgba(255,255,255,0.05)" strokeDasharray={i === 0 ? "0" : "3 3"} />
+              <text x={pad.left - 8} y={y + 4} fontSize="10" fill="var(--text-muted)" textAnchor="end" fontFamily="var(--mono)">{val}</text>
+            </g>
+          );
+        })}
+
+        {data.map((d, i) => {
+          const gx = pad.left + i * groupW + groupW / 2;
+          const entryH = (d.entry / max) * innerH;
+          const exitH = (d.exit / max) * innerH;
+          const showLabel = data.length <= 14 || i % Math.ceil(data.length / 14) === 0;
+          return (
+            <g key={d.key} onMouseEnter={() => setHover({ d, gx })} onMouseLeave={() => setHover(null)}>
+              <rect x={pad.left + i * groupW} y={pad.top} width={groupW} height={innerH} fill="transparent" />
+              <rect x={gx - barW - 1} y={pad.top + innerH - entryH} width={barW} height={entryH} fill="url(#barEntry)" rx="3" className="chart-bar" />
+              <rect x={gx + 1} y={pad.top + innerH - exitH} width={barW} height={exitH} fill="url(#barExit)" rx="3" className="chart-bar" />
+              {showLabel && (
+                <text x={gx} y={H - pad.bottom + 16} fontSize="10" fill="var(--text-muted)" textAnchor="middle">{d.label}</text>
+              )}
+            </g>
+          );
+        })}
+
+        {hover && (
+          <g style={{ pointerEvents: "none" }}>
+            <line x1={hover.gx} x2={hover.gx} y1={pad.top} y2={pad.top + innerH} stroke="var(--accent)" strokeOpacity="0.4" strokeDasharray="4 4" />
+          </g>
+        )}
+      </svg>
+      {hover && (
+        <div className="chart-tooltip" style={{ left: `${(hover.gx / W) * 100}%` }}>
+          <div className="chart-tooltip-title">{hover.d.label}</div>
+          <div className="chart-tooltip-row"><span className="tip-dot entry" /> Entradas<strong>{hover.d.entry}</strong></div>
+          <div className="chart-tooltip-row"><span className="tip-dot exit" /> Saídas<strong>{hover.d.exit}</strong></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const PIE_COLORS = ["#3B82F6", "#10B981", "#8B5CF6", "#F59E0B", "#14B8A6", "#EF4444"];
 
 function polarToCartesian(cx, cy, r, angleDeg) {
@@ -162,22 +249,11 @@ export default function DashboardPage() {
               <label>Até <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} /></label>
             </div>
           </div>
-          <div className="mini-chart">
-            {chartData.length === 0 ? (
-              <div style={{ width: "100%", textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>Intervalo inválido</div>
-            ) : chartData.map((d) => (
-              <div key={d.key} className="bar-group">
-                <div className="bars">
-                  <div className="bar entry" style={{ height: `${(d.entry / maxVal) * 80}px` }} title={`Entradas: ${d.entry}`} />
-                  <div className="bar exit" style={{ height: `${(d.exit / maxVal) * 80}px` }} title={`Saídas: ${d.exit}`} />
-                </div>
-                <span className="bar-label">{d.label}</span>
-              </div>
-            ))}
-          </div>
-          <div style={{ padding: "0 24px 16px", display: "flex", gap: 16, fontSize: 12, color: "var(--text-muted)" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: "var(--accent)" }} /> Entradas</span>
-            <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: "rgba(255,255,255,0.1)" }} /> Saídas</span>
+          <BarChartSVG data={chartData} />
+          <div className="chart-legend">
+            <span><span className="tip-dot entry" /> Entradas</span>
+            <span><span className="tip-dot exit" /> Saídas</span>
+            <span className="chart-legend-total">Total: <strong>{chartData.reduce((a, d) => a + d.entry + d.exit, 0)}</strong></span>
           </div>
         </div>
         <div className="card">
