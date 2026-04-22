@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Icons } from "../utils/icons.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
-export default function Sidebar() {
+export default function Sidebar({ open = false, onClose }) {
   const { currentUser, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
@@ -21,10 +21,10 @@ export default function Sidebar() {
   if (isAdmin) sections.push({ title: "Sistema", items: [{ to: "/usuarios", label: "Usuários", icon: <Icons.Users /> }] });
 
   const initials = (currentUser?.name || "?").split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
-  function handleLogout() { logout(); navigate("/login"); }
+  function handleLogout() { onClose?.(); logout(); navigate("/login"); }
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${open ? "open" : ""}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo"><Icons.Box /></div>
         <span className="sidebar-brand">SmartStock</span>
@@ -34,7 +34,7 @@ export default function Sidebar() {
           <div key={sec.title}>
             <div className="nav-section-title">{sec.title}</div>
             {sec.items.map((item) => (
-              <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+              <NavLink key={item.to} to={item.to} end={item.end} onClick={() => onClose?.()} className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
                 <span className="nav-icon">{item.icon}</span>
                 <span>{item.label}</span>
               </NavLink>
